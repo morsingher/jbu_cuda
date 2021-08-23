@@ -22,12 +22,12 @@ bool JointBilateralUpsampling(const std::string& path_lr, const std::string& pat
 
     JBU jbu(data_lr, data_hr);
 
-    auto start = std::chrono::high_resolution_clock::now();
+    const auto start = std::chrono::high_resolution_clock::now();
 
     jbu.RunCuda();
     
-    auto end = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+    const auto end = std::chrono::high_resolution_clock::now();
+    const auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
     std::cout << "CUDA elapsed time: " << duration.count() / 1e9 << " s" << std::endl; 
 
     // Save results
@@ -35,20 +35,6 @@ bool JointBilateralUpsampling(const std::string& path_lr, const std::string& pat
     const cv::Mat_<float> res = jbu.GetResult();
     WriteColmapMat(out_folder + "output.dmb", res);
     SaveImage(res, out_folder + "output_viz.jpg");
-
-    // OpenCV comparison
-
-    cv::Mat_<float> opencv_res;
-
-    start = std::chrono::high_resolution_clock::now();
-
-    cv::resize(data_lr, opencv_res, cv::Size(data_hr.cols, data_hr.rows), cv::INTER_LINEAR);
-    
-    end = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
-    std::cout << "OpenCV elapsed time: " << duration.count() / 1e9 << " s" << std::endl; 
-
-    SaveImage(opencv_res, out_folder + "output_opencv.jpg");
 
     return true;
 }
